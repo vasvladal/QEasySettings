@@ -46,40 +46,40 @@ QEasySettings::~QEasySettings()
     delete m_settingsObj;
 }
 
-QEasySettings::Theme QEasySettings::loadStyle()
+QEasySettings::Style QEasySettings::loadStyle()
 {
     int val;
     m_instance->m_settingsObj->beginGroup("Style");
     val = m_instance->m_settingsObj
-            ->value("Theme", static_cast<int>(Theme::lightFusion))
-            .toInt(); // default theme is lightFusion
+            ->value("Style", static_cast<int>(Style::lightFusion))
+            .toInt(); // default Style is lightFusion
     m_instance->m_settingsObj->endGroup();
-    return static_cast<Theme>(val);
+    return static_cast<Style>(val);
 }
 
-void QEasySettings::setStyle(const QEasySettings::Theme val)
+void QEasySettings::setStyle(const QEasySettings::Style val)
 {
     switch (val) {
-    case Theme::autoFusion:
+    case Style::autoFusion:
         qApp->setStyle(QStyleFactory::create("Fusion"));
         setAutoPalette(true);
         break;
-    case Theme::vista:
+    case Style::vista:
         qApp->setStyle(QStyleFactory::create("windowsvista"));
         setAutoPalette(false);
         changePalette(Palette::light);
         break;
-    case Theme::classic:
+    case Style::classic:
         qApp->setStyle(QStyleFactory::create("windows"));
         setAutoPalette(false);
         changePalette(Palette::light);
         break;
-    case Theme::lightFusion:
+    case Style::lightFusion:
         qApp->setStyle(QStyleFactory::create("Fusion"));
         setAutoPalette(false);
         changePalette(Palette::light);
         break;
-    case Theme::darkFusion:
+    case Style::darkFusion:
         qApp->setStyle(QStyleFactory::create("Fusion"));
         setAutoPalette(false);
         changePalette(Palette::dark);
@@ -98,9 +98,9 @@ QVariant QEasySettings::readSettings(const QString group, const QString key)
     return val;
 }
 
-void QEasySettings::writeStyle(const QEasySettings::Theme &option){
+void QEasySettings::writeStyle(const QEasySettings::Style &option){
     m_instance->m_settingsObj->beginGroup("Style");
-    m_instance->m_settingsObj->setValue("Theme", static_cast<int>(option));
+    m_instance->m_settingsObj->setValue("Style", static_cast<int>(option));
     m_instance->m_settingsObj->endGroup();
 }
 

@@ -28,7 +28,7 @@ class QEasySettings : public QObject
 {
     Q_OBJECT
 public:
-    enum class Theme { autoFusion, vista, classic, lightFusion, darkFusion };
+    enum class Style { autoFusion, vista, classic, lightFusion, darkFusion };
     enum class Format { regFormat, iniFormat };
 
     static void init(Format format, const QString &name);
@@ -37,12 +37,12 @@ public:
     \fn int loadStyle
     \brief Loads current application style from settings file or registry
     */
-    static Theme loadStyle();
+    static Style loadStyle();
     /*!
     \fn void setStyle
     \brief Apply a given style to application
     */
-    static void setStyle(const Theme val);
+    static void setStyle(const Style val);
     /*!
     \fn QVariant readSettings
     \brief Read a value stored in settings given group and key
@@ -61,7 +61,7 @@ public:
         m_instance->m_settingsObj->endGroup();
     }
 
-    static void writeStyle(const enum Theme &option);
+    static void writeStyle(const enum Style &option);
 
 private:
     enum class Palette { dark, light };
