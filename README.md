@@ -2,8 +2,10 @@
 Easy to use manage settings and style options for your Qt projects!
 
 ## How to use?
-Include the header file named "qeasysettings.hpp" into your qt project then you have to init **QEasySettings** singleton object for how settings are stored in computer.``QEasySettings::init(QEasySettings::Format::regformat, "yourappname")`` is example for init object and store setting in registry under **"yourappname"** key. Other option is **QEasySettings::Format::iniformat** that stores the settings in "yourappname" file. Change themes simply type ``QEasySettings::setStyle(QEasySettings::Style::darkFusion);`` for Fusion Dark style.  
-This updated version have an auto follow **Windows 10 dark/light scheme feature** and you can simply write ``QEasySettings::setStyle(QEasySettings::Style::autoFusion);`` to use it!
+Include the header file named "qeasysettings.hpp" into your qt project then you have to init **QEasySettings** singleton object for how settings are stored in computer.``QEasySettings::init(QEasySettings::Format::regformat, "yourappname")`` is example for init object and store setting in registry under **"yourappname"** key. Other option is **QEasySettings::Format::iniformat** that stores the settings in "yourappname" file. Change themes simply type ``QEasySettings::setStyle(QEasySettings::Style::darkFusion);`` for Fusion Dark style.    
+This updated version have an auto follow **Windows 10 dark/light scheme feature** and you can simply write ``QEasySettings::setStyle(QEasySettings::Style::autoFusion);`` to use it!    
+### AutoFusion Style demo
+![ss1](https://raw.githubusercontent.com/mguludag/QEasySettings/main/ezgif-2-fb4debdb2b8e.gif)
 
 Other theme/style choices in the table.
 
