@@ -16,170 +16,224 @@
  * this file belongs to.
  *****************************************************************************/
 #include "qeasysettings.hpp"
-#include <QStyle>
-#include <QStyleFactory>
-#include <QToolTip>
+#include <QTimer>
+
+#ifndef QT_QUICK_LIB
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QPalette>
-#include <QTimer>
+#include <QStyle>
+#include <QStyleFactory>
+#include <QToolTip>
+#else
+#include <QQuickStyle>
+#endif
 
 QEasySettings *QEasySettings::m_instance = nullptr;
-bool QEasySettings::m_autoPalette=false;
+bool QEasySettings::m_autoPalette = false;
 bool QEasySettings::m_islight;
+#ifndef QT_QUICK_LIB
 QPalette QEasySettings::mPalette;
-QSettings QEasySettings::m_settings{"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",QSettings::NativeFormat};
+#endif
+QSettings QEasySettings::m_settings{
+    "HKEY_CURRENT_"
+    "USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+    QSettings::NativeFormat};
 QTimer QEasySettings::mTimer;
 
-
-void QEasySettings::init(QEasySettings::Format format, const QString &name)
-{
-    if (!m_instance){
-        m_instance = new QEasySettings(format, name);
-        sConnectionCallback(*m_instance);
-    }
+void QEasySettings::init(QEasySettings::Format format, const QString &name) {
+  if (!m_instance) {
+    m_instance = new QEasySettings(format, name);
+    sConnectionCallback(*m_instance);
+  }
 }
 
-QEasySettings::~QEasySettings()
-{
-    delete m_instance;
-    delete m_settingsObj;
+QEasySettings::~QEasySettings() {
+  delete m_settingsObj;
+  delete m_instance;
 }
 
-QEasySettings::Style QEasySettings::loadStyle()
-{
-    int val;
-    m_instance->m_settingsObj->beginGroup("Style");
-    val = m_instance->m_settingsObj
+#ifndef QT_QUICK_LIB
+QEasySettings::Style QEasySettings::loadStyle() {
+  int val;
+  m_instance->m_settingsObj->beginGroup("Style");
+  val = m_instance->m_settingsObj
             ->value("Style", static_cast<int>(Style::lightFusion))
             .toInt(); // default Style is lightFusion
-    m_instance->m_settingsObj->endGroup();
-    return static_cast<Style>(val);
+  m_instance->m_settingsObj->endGroup();
+  return static_cast<Style>(val);
 }
 
-void QEasySettings::setStyle(const QEasySettings::Style val)
-{
-    switch (val) {
-    case Style::autoFusion:
-        qApp->setStyle(QStyleFactory::create("Fusion"));
-        setAutoPalette(true);
-        break;
-    case Style::vista:
-        qApp->setStyle(QStyleFactory::create("windowsvista"));
-        setAutoPalette(false);
-        changePalette(Palette::light);
-        break;
-    case Style::classic:
-        qApp->setStyle(QStyleFactory::create("windows"));
-        setAutoPalette(false);
-        changePalette(Palette::light);
-        break;
-    case Style::lightFusion:
-        qApp->setStyle(QStyleFactory::create("Fusion"));
-        setAutoPalette(false);
-        changePalette(Palette::light);
-        break;
-    case Style::darkFusion:
-        qApp->setStyle(QStyleFactory::create("Fusion"));
-        setAutoPalette(false);
-        changePalette(Palette::dark);
-        break;
-    default:
-        break;
-    }
+void QEasySettings::setStyle(const QEasySettings::Style val) {
+  switch (val) {
+  case Style::autoFusion:
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+    setAutoPalette(true);
+    break;
+  case Style::vista:
+    qApp->setStyle(QStyleFactory::create("windowsvista"));
+    setAutoPalette(false);
+    changePalette(Palette::light);
+    break;
+  case Style::classic:
+    qApp->setStyle(QStyleFactory::create("windows"));
+    setAutoPalette(false);
+    changePalette(Palette::light);
+    break;
+  case Style::lightFusion:
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+    setAutoPalette(false);
+    changePalette(Palette::light);
+    break;
+  case Style::darkFusion:
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+    setAutoPalette(false);
+    changePalette(Palette::dark);
+    break;
+  default:
+    break;
+  }
+}
+#endif
+
+QVariant QEasySettings::readSettings(const QString group, const QString key) {
+  QVariant val;
+  m_instance->m_settingsObj->beginGroup(group);
+  val = m_instance->m_settingsObj->value(key);
+  m_instance->m_settingsObj->endGroup();
+  return val;
 }
 
-QVariant QEasySettings::readSettings(const QString group, const QString key)
-{
-    QVariant val;
-    m_instance->m_settingsObj->beginGroup(group);
-    val = m_instance->m_settingsObj->value(key);
-    m_instance->m_settingsObj->endGroup();
-    return val;
+void QEasySettings::writeSettings(const QString group, const QString key,
+                                  const QVariant &option) {
+  m_instance->m_settingsObj->beginGroup(group);
+  m_instance->m_settingsObj->setValue(key, option);
+  m_instance->m_settingsObj->endGroup();
 }
 
-void QEasySettings::writeStyle(const QEasySettings::Style &option){
-    m_instance->m_settingsObj->beginGroup("Style");
-    m_instance->m_settingsObj->setValue("Style", static_cast<int>(option));
-    m_instance->m_settingsObj->endGroup();
+QEasySettings *QEasySettings::instance() { return m_instance; }
+
+#ifndef QT_QUICK_LIB
+void QEasySettings::writeStyle(const QEasySettings::Style &option) {
+  m_instance->m_settingsObj->beginGroup("Style");
+  m_instance->m_settingsObj->setValue("Style", static_cast<int>(option));
+  m_instance->m_settingsObj->endGroup();
+}
+#endif
+
+QEasySettings::QEasySettings(QEasySettings::Format format,
+                             const QString &name) {
+  (static_cast<bool>(format))
+      ? m_settingsObj = new QSettings(name, QSettings::IniFormat)
+      : m_settingsObj = new QSettings(name, name);
 }
 
-QEasySettings::QEasySettings(QEasySettings::Format format, const QString &name)
-{
-    (static_cast<bool>(format))
-            ? m_settingsObj = new QSettings(name, QSettings::IniFormat)
-            : m_settingsObj = new QSettings(name, QApplication::applicationName());
+void QEasySettings::setAutoPalette(bool autoPalette) {
+  m_autoPalette = autoPalette;
+  setupEventLoop(autoPalette);
+}
+#ifdef QT_QUICK_LIB
+void QEasySettings::writeStyle(const QString &style, const QString &theme) {
+  m_instance->m_settingsObj->beginGroup("Controls");
+  m_instance->m_settingsObj->setValue("Style", style);
+  m_instance->m_settingsObj->endGroup();
+
+  m_instance->m_settingsObj->beginGroup(style);
+  m_instance->m_settingsObj->setValue("Theme", theme);
+  m_instance->m_settingsObj->endGroup();
 }
 
-void QEasySettings::setAutoPalette(bool autoPalette)
-{
-    m_autoPalette = autoPalette;
-    setupEventLoop(autoPalette);
+void QEasySettings::loadStyle() {
+  m_instance->m_settingsObj->beginGroup("Controls");
+  auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
+  m_instance->m_settingsObj->endGroup();
+  QQuickStyle::setStyle(val);
 }
 
-void QEasySettings::changePalette(QEasySettings::Palette _palette)
-{
-    if (static_cast<bool>(_palette)) {
-        mPalette = qApp->style()->standardPalette();
-    } else{
-        mPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-        mPalette.setColor(QPalette::WindowText, Qt::white);
-        mPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-        mPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-        mPalette.setColor(QPalette::ToolTipBase, QColor(53, 53, 53));
-        mPalette.setColor(QPalette::ToolTipText, Qt::white);
-        mPalette.setColor(QPalette::Text, Qt::white);
-        mPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-        mPalette.setColor(QPalette::ButtonText, Qt::white);
-        mPalette.setColor(QPalette::BrightText, Qt::red);
-        mPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-        mPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-        mPalette.setColor(QPalette::HighlightedText, Qt::black);
-        mPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(164, 166, 168));
-        mPalette.setColor(QPalette::Disabled, QPalette::WindowText,
-                          QColor(164, 166, 168));
-        mPalette.setColor(QPalette::Disabled, QPalette::ButtonText,
-                          QColor(164, 166, 168));
-        mPalette.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                          QColor(164, 166, 168));
-        mPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(68, 68, 68));
-        mPalette.setColor(QPalette::Disabled, QPalette::Window, QColor(68, 68, 68));
-        mPalette.setColor(QPalette::Disabled, QPalette::Highlight,
-                          QColor(68, 68, 68));
-    }
-
-    QToolTip::setPalette(mPalette);
-    qApp->setPalette(mPalette);
+QString QEasySettings::readTheme() {
+  m_instance->m_settingsObj->beginGroup("Controls");
+  auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
+  m_instance->m_settingsObj->endGroup();
+  m_instance->m_settingsObj->beginGroup(val);
+  val = m_instance->m_settingsObj->value("Theme", "System").toString();
+  m_instance->m_settingsObj->endGroup();
+  return val;
 }
 
-void QEasySettings::sConnectionCallback(QEasySettings &s)
-{
-    connect(&s,SIGNAL(notifyPalette(bool)),&s,SLOT(bool2PaletteHelper(bool)), Qt::QueuedConnection);
-    connect(&mTimer,&QTimer::timeout,&s,&QEasySettings::eventLoop);
-    mTimer.setInterval(100);
+QString QEasySettings::readStyle() {
+  m_instance->m_settingsObj->beginGroup("Controls");
+  auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
+  m_instance->m_settingsObj->endGroup();
+  return val;
+}
+#endif
+
+#ifndef QT_QUICK_LIB
+void QEasySettings::changePalette(QEasySettings::Palette _palette) {
+  if (static_cast<bool>(_palette)) {
+    mPalette = qApp->style()->standardPalette();
+  } else {
+    mPalette.setColor(QPalette::Window, QColor(53, 53, 53));
+    mPalette.setColor(QPalette::WindowText, Qt::white);
+    mPalette.setColor(QPalette::Base, QColor(25, 25, 25));
+    mPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
+    mPalette.setColor(QPalette::ToolTipBase, QColor(53, 53, 53));
+    mPalette.setColor(QPalette::ToolTipText, Qt::white);
+    mPalette.setColor(QPalette::Text, Qt::white);
+    mPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+    mPalette.setColor(QPalette::ButtonText, Qt::white);
+    mPalette.setColor(QPalette::BrightText, Qt::red);
+    mPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+    mPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+    mPalette.setColor(QPalette::HighlightedText, Qt::black);
+    mPalette.setColor(QPalette::Disabled, QPalette::Text,
+                      QColor(164, 166, 168));
+    mPalette.setColor(QPalette::Disabled, QPalette::WindowText,
+                      QColor(164, 166, 168));
+    mPalette.setColor(QPalette::Disabled, QPalette::ButtonText,
+                      QColor(164, 166, 168));
+    mPalette.setColor(QPalette::Disabled, QPalette::HighlightedText,
+                      QColor(164, 166, 168));
+    mPalette.setColor(QPalette::Disabled, QPalette::Base, QColor(68, 68, 68));
+    mPalette.setColor(QPalette::Disabled, QPalette::Window, QColor(68, 68, 68));
+    mPalette.setColor(QPalette::Disabled, QPalette::Highlight,
+                      QColor(68, 68, 68));
+  }
+
+  QToolTip::setPalette(mPalette);
+  qApp->setPalette(mPalette);
+}
+#endif
+
+void QEasySettings::sConnectionCallback(QEasySettings &s) {
+#ifndef QT_QUICK_LIB
+  connect(&s, SIGNAL(notifyPalette(bool)), &s, SLOT(bool2PaletteHelper(bool)),
+          Qt::QueuedConnection);
+#endif
+  connect(&mTimer, &QTimer::timeout, &s, &QEasySettings::eventLoop);
+  mTimer.setInterval(100);
 }
 
-void QEasySettings::bool2PaletteHelper(bool b)
-{
-    changePalette(static_cast<enum Palette>(b));
+#ifndef QT_QUICK_LIB
+void QEasySettings::bool2PaletteHelper(bool b) {
+  changePalette(static_cast<enum Palette>(b));
+}
+#endif
+
+void QEasySettings::setupEventLoop(const bool &event) {
+  m_autoPalette = event;
+  event ? mTimer.start() : mTimer.stop();
 }
 
-void QEasySettings::setupEventLoop(const bool &event)
-{
-    m_autoPalette=event;
-    event ? mTimer.start() : mTimer.stop();
+void QEasySettings::eventLoop() {
+  if (m_autoPalette) {
+    auto const temp = m_settings.value("AppsUseLightTheme", true).toBool();
+    if (temp == m_islight)
+      sigHandler(temp, *m_instance);
+    m_islight = temp;
+  }
 }
 
-void QEasySettings::eventLoop()
-{
-    if (m_autoPalette) {
-        auto const temp = m_settings.value("AppsUseLightTheme",true).toBool();
-        if(temp==m_islight) sigHandler(temp, *m_instance);
-        m_islight=temp;
-    }
-}
-
-void QEasySettings::sigHandler(bool b, const QEasySettings &s)
-{
-    s.notifyPalette(b);
+void QEasySettings::sigHandler(bool b, QEasySettings &s) {
+  emit s.notifyPalette(b);
 }

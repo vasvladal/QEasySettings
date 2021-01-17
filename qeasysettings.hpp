@@ -23,51 +23,128 @@
 class QPalette;
 class QTimer;
 
-
-class QEasySettings : public QObject
-{
+class QEasySettings : public QObject {
     Q_OBJECT
 public:
+    /*********************************ENUMS************************************/
     enum class Style { autoFusion, vista, classic, lightFusion, darkFusion };
     enum class Format { regFormat, iniFormat };
 
+
+    /****************************PUBLIC FUNCTIONS******************************/
+    /*!
+     * \fn void init
+     * \brief Inits the settings object with desired format and name
+     * \param format
+     * \param name
+     */
     static void init(Format format, const QString &name);
+
     ~QEasySettings();
+
+#ifndef QT_QUICK_LIB
     /*!
-    \fn int loadStyle
-    \brief Loads current application style from settings file or registry
-    */
+     * \fn int loadStyle
+     * \brief Loads current application style from settings file or registry
+     */
     static Style loadStyle();
+
     /*!
-    \fn void setStyle
-    \brief Apply a given style to application
-    */
+     * \fn void setStyle
+     * \brief Apply a given style to application
+     */
     static void setStyle(const Style val);
-    /*!
-    \fn QVariant readSettings
-    \brief Read a value stored in settings given group and key
-    */
-    static QVariant readSettings(const QString group, const QString key);
+
     template <typename T>
     /*!
-    \fn void writeSettings
-    \brief Write a value in settings given group and key
-    */
+     * \fn void writeSettings
+     * \brief Write a value in settings given group and key
+     */
     static void writeSettings(const QString group, const QString key,
-                              const T &option)
-    {
+                              const T &option) {
         m_instance->m_settingsObj->beginGroup(group);
         m_instance->m_settingsObj->setValue(key, option);
         m_instance->m_settingsObj->endGroup();
     }
 
+    /*!
+     * \fn void writeStyle
+     * \brief Write the style settings in file or registry
+     * \param option
+     */
     static void writeStyle(const enum Style &option);
+#else
+    /*!
+     * \fn QVariant readSettings
+     * \brief Read a value stored in settings given group and key
+     * \param group
+     * \param key
+     */
+    Q_INVOKABLE static QVariant readSettings(const QString group,
+                                             const QString key);
 
+    /*!
+     * \fn void writeSettings
+     * \brief Write a value in settings given group and key
+     * \param group
+     * \param key
+     * \param option
+     */
+    Q_INVOKABLE static void writeSettings(const QString group, const QString key,
+                                          const QVariant &option);
+    /*!
+     * \fn void writeStyle
+     * \brief Write the style settings in file or registry
+     * \param style
+     * \param theme
+     */
+    Q_INVOKABLE static void writeStyle(const QString &style, const QString &theme);
+
+    /*!
+     * \fn void loadStyle
+     * \brief Load and apply QML style from settings file or registry
+     */
+    Q_INVOKABLE static void loadStyle();
+
+    /*!
+     * \fn QString readTheme
+     * \brief Read QML Theme name from settings file or registry
+     * \return QString
+     */
+    Q_INVOKABLE static QString readTheme();
+
+    /*!
+     * \fn QString readStyle
+     * \brief Read QML Style name from settings file or registry
+     * \return
+     */
+    Q_INVOKABLE static QString readStyle();
+#endif
+
+    /*!
+     * \fn QEasySettings* instance
+     * \brief Returns instance object for forwarding to QML
+     * \return
+     */
+    static QEasySettings *instance();
+
+    /*!
+     * \fn void setAutoPalette
+     * \brief Set true to auto follow Windows 10 dark/light mode changes
+     * \param autoPalette
+     */
+    Q_INVOKABLE static void setAutoPalette(bool autoPalette);
+
+
+
+    /*************************PRIVATE MEMBERS**********************************/
 private:
     enum class Palette { dark, light };
     static QEasySettings *m_instance;
     QSettings *m_settingsObj = nullptr;
+#ifndef QT_QUICK_LIB
     static QPalette mPalette;
+#endif
     static bool m_autoPalette;
     static QSettings m_settings;
     static QTimer mTimer;
@@ -75,19 +152,28 @@ private:
 
     QEasySettings() = delete;
     QEasySettings(Format format, const QString &name);
-    static void setAutoPalette(bool autoPalette);
+#ifndef QT_QUICK_LIB
     static void changePalette(enum Palette _palette);
+#endif
     static void sConnectionCallback(QEasySettings &s);
 
+    /********************************SIGNALS***********************************/
 signals:
-    void notifyPalette(bool) const;
-    void startEvent();
+    /*!
+     * \fn void notifyPalette
+     * \brief Signal for notify Windows 10 dark/light mode changes
+     * \param isLight bool
+     */
+    void notifyPalette(bool isLight);
 
+    /****************************PRIVATE SLOTS*********************************/
 private slots:
+#ifndef QT_QUICK_LIB
     static void bool2PaletteHelper(bool b);
+#endif
     static void setupEventLoop(const bool &event);
     static void eventLoop();
-    static void sigHandler(bool b, const QEasySettings &s);
+    static void sigHandler(bool b, QEasySettings &s);
 };
 
 #endif // QEASYSETTINGS_HPP
