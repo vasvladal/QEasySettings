@@ -54,7 +54,7 @@ QEasySettings::~QEasySettings() {
 }
 
 #ifndef QT_QUICK_LIB
-QEasySettings::Style QEasySettings::loadStyle() {
+QEasySettings::Style QEasySettings::readStyle() {
   int val;
   m_instance->m_settingsObj->beginGroup("Style");
   val = m_instance->m_settingsObj
