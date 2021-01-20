@@ -19,7 +19,7 @@ Other theme/style choices in the table.
 
 You can read settings with ``QEasySettings::readSettings(QString group, QString key);`` function. This function reads settings.ini file for given QString group and QString key argument. If these group and key found in settings.ini file then function returns key's value in QVariant type.
 
-Load style/theme settings with ``QEasySettings::loadStyle();`` and using this return value then set style/theme options with ``QEasySettings::setStyle(enum QEasySettings::Style retValue);`` function.
+Load style/theme settings with ``QEasySettings::readStyle();`` and using this return value then set style/theme options with ``QEasySettings::setStyle(enum QEasySettings::Style retValue);`` function.
 
 You can write settings with ``QEasySettings::writeSettings(QString group, QString key, T option);`` fuction. This function creates settings.ini file and writes group, key and its value (T type option). 
 
