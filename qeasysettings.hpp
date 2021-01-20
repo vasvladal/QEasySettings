@@ -55,6 +55,15 @@ public:
      */
     static void setStyle(const Style val);
 
+    /*!
+     * \fn QVariant readSettings
+     * \brief Read a value stored in settings given group and key
+     * \param group
+     * \param key
+     */
+    static QVariant readSettings(const QString group,
+                                             const QString key);
+
     template <typename T>
     /*!
      * \fn void writeSettings

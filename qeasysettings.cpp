@@ -104,12 +104,14 @@ QVariant QEasySettings::readSettings(const QString group, const QString key) {
   return val;
 }
 
+#ifdef QT_QUICK_LIB
 void QEasySettings::writeSettings(const QString group, const QString key,
                                   const QVariant &option) {
   m_instance->m_settingsObj->beginGroup(group);
   m_instance->m_settingsObj->setValue(key, option);
   m_instance->m_settingsObj->endGroup();
 }
+#endif
 
 QEasySettings *QEasySettings::instance() { return m_instance; }
 
