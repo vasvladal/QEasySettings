@@ -47,13 +47,13 @@ public:
      * \fn int loadStyle
      * \brief Loads current application style from settings file or registry
      */
-    static Style loadStyle();
+    static Style readStyle();
 
     /*!
      * \fn void setStyle
      * \brief Apply a given style to application
      */
-    static void setStyle(const Style val);
+    static void setStyle(const Style val=Style::lightFusion);
 
     /*!
      * \fn QVariant readSettings
