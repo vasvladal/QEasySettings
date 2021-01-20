@@ -111,9 +111,10 @@ public:
 
     /*!
      * \fn void loadStyle
-     * \brief Load and apply QML style from settings file or registry
+     * \brief Load and apply QML style from settings file or registry or 
+     * if not retrieve this setting it uses the parameter
      */
-    Q_INVOKABLE static void loadStyle();
+    Q_INVOKABLE static void setStyle(const QString &style="Default");
 
     /*!
      * \fn QString readTheme
