@@ -18,6 +18,14 @@
 #include "qeasysettings.hpp"
 #include <QTimer>
 
+#ifdef NDEBUG
+#undef NDEBUG
+#include <cassert>
+#endif
+
+// Use (void) to silent unused warnings.
+#define assertm(exp, msg) assert(((void)msg, exp))
+
 #ifndef QT_QUICK_LIB
 #include <QApplication>
 #include <QDesktopWidget>
@@ -55,6 +63,7 @@ QEasySettings::~QEasySettings() {
 
 #ifndef QT_QUICK_LIB
 QEasySettings::Style QEasySettings::readStyle() {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   int val;
   m_instance->m_settingsObj->beginGroup("Style");
   val = m_instance->m_settingsObj
@@ -97,6 +106,7 @@ void QEasySettings::setStyle(const QEasySettings::Style val) {
 #endif
 
 QVariant QEasySettings::readSettings(const QString group, const QString key) {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   QVariant val;
   m_instance->m_settingsObj->beginGroup(group);
   val = m_instance->m_settingsObj->value(key);
@@ -107,16 +117,21 @@ QVariant QEasySettings::readSettings(const QString group, const QString key) {
 #ifdef QT_QUICK_LIB
 void QEasySettings::writeSettings(const QString group, const QString key,
                                   const QVariant &option) {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   m_instance->m_settingsObj->beginGroup(group);
   m_instance->m_settingsObj->setValue(key, option);
   m_instance->m_settingsObj->endGroup();
 }
 #endif
 
-QEasySettings *QEasySettings::instance() { return m_instance; }
+QEasySettings *QEasySettings::instance() { 
+    assertm(m_instance, "Call QEasySettings::init() function first!");
+    return m_instance; 
+}
 
 #ifndef QT_QUICK_LIB
 void QEasySettings::writeStyle(const QEasySettings::Style &option) {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   m_instance->m_settingsObj->beginGroup("Style");
   m_instance->m_settingsObj->setValue("Style", static_cast<int>(option));
   m_instance->m_settingsObj->endGroup();
@@ -136,6 +151,7 @@ void QEasySettings::setAutoPalette(bool autoPalette) {
 }
 #ifdef QT_QUICK_LIB
 void QEasySettings::writeStyle(const QString &style, const QString &theme) {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   m_instance->m_settingsObj->beginGroup("Controls");
   m_instance->m_settingsObj->setValue("Style", style);
   m_instance->m_settingsObj->endGroup();
@@ -150,6 +166,7 @@ void QEasySettings::setStyle(const QString &style) {
 }
 
 QString QEasySettings::readTheme() {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   m_instance->m_settingsObj->beginGroup("Controls");
   auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
   m_instance->m_settingsObj->endGroup();
@@ -160,6 +177,7 @@ QString QEasySettings::readTheme() {
 }
 
 QString QEasySettings::readStyle() {
+  assertm(m_instance, "Call QEasySettings::init() function first!");
   m_instance->m_settingsObj->beginGroup("Controls");
   auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
   m_instance->m_settingsObj->endGroup();
