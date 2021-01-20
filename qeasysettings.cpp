@@ -145,9 +145,9 @@ void QEasySettings::writeStyle(const QString &style, const QString &theme) {
   m_instance->m_settingsObj->endGroup();
 }
 
-void QEasySettings::loadStyle() {
+void QEasySettings::setStyle(const QString &style) {
   m_instance->m_settingsObj->beginGroup("Controls");
-  auto val = m_instance->m_settingsObj->value("Style", "Default").toString();
+  auto val = m_instance->m_settingsObj->value("Style", style).toString();
   m_instance->m_settingsObj->endGroup();
   QQuickStyle::setStyle(val);
 }
